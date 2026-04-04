@@ -66,10 +66,15 @@
       "Bash(curl --max-time 10 -s \"http://192.168.0.225:10300/v1/models\")",
       "Bash(curl --max-time 10 -s \"http://192.168.0.225:10300/health\")",
       "Bash(curl --max-time 30 -s -X POST http://192.168.0.225:10300/v1/audio/transcriptions -H 'Content-Type: multipart/form-data' -F model=Systran/faster-whisper-small -F language=pt -F file=@C:/Windows/Media/notify.wav)",
-      "Bash(curl --max-time 120 -s -X POST http://192.168.0.225:10300/v1/audio/transcriptions -F model=Systran/faster-whisper-tiny -F language=pt -F 'file=@C:/Users/Usuario/AppData/Local/Temp/test_alice.wav;type=audio/wav')"
+      "Bash(curl --max-time 120 -s -X POST http://192.168.0.225:10300/v1/audio/transcriptions -F model=Systran/faster-whisper-tiny -F language=pt -F 'file=@C:/Users/Usuario/AppData/Local/Temp/test_alice.wav;type=audio/wav')",
+      "Bash(python fix_accents.py)",
+      "Bash(python3 fix_accents.py)",
+      "Bash(python3 \"c:/Users/Usuario/Desktop/alice/docs/brainstorm/fix_accents.py\")",
+      "Bash(python3)"
     ],
     "additionalDirectories": [
-      "c:\\Users\\Usuario\\Desktop\\alice\\docs"
+      "c:\\Users\\Usuario\\Desktop\\alice\\docs",
+      "C:\\Users\\Usuario\\Desktop\\alice\\docs"
     ]
   }
 }
