@@ -70,7 +70,12 @@
       "Bash(python fix_accents.py)",
       "Bash(python3 fix_accents.py)",
       "Bash(python3 \"c:/Users/Usuario/Desktop/alice/docs/brainstorm/fix_accents.py\")",
-      "Bash(python3)"
+      "Bash(python3)",
+      "WebFetch(domain:gist.github.com)",
+      "Bash(wc -l docs/planejamento/*.md)",
+      "Bash(ls -lh docs/**/*.md)",
+      "Read(//^### A[0-9]+ —/{flag=1; section=$0} flag && /^---$/**)",
+      "Bash(wc -l /c/Users/Usuario/Desktop/alice/docs/planejamento/*.md)"
     ],
     "additionalDirectories": [
       "c:\\Users\\Usuario\\Desktop\\alice\\docs",
