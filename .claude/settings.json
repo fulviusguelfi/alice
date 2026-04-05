@@ -79,7 +79,8 @@
     ],
     "additionalDirectories": [
       "c:\\Users\\Usuario\\Desktop\\alice\\docs",
-      "C:\\Users\\Usuario\\Desktop\\alice\\docs"
+      "C:\\Users\\Usuario\\Desktop\\alice\\docs",
+      "c:\\Users\\Usuario\\Desktop\\alice\\.claude"
     ]
   }
 }
