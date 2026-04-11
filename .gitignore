@@ -1,0 +1,35 @@
+# Secrets e credenciais — NUNCA commitar
+.secrets/
+*.env
+*.key
+api_keys*
+credentials*
+
+# Build artifacts (Forge MDK futuro)
+build/
+.gradle/
+run/
+out/
+bin/
+*.class
+*.jar
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.project
+.classpath
+.settings/
+
+# Sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+logs/
+
+# Benchmark raw (grandes, reprodutíveis)
+docs/benchmark/results_*.jsonl

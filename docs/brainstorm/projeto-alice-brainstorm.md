@@ -100,7 +100,7 @@ Usos:                                                               phi3:3.8b-mi
 | 19 | 2026-04-02 | Idioma: Portugues BR (MVP) | Outros idiomas em versões futuras |
 | 20 | 2026-04-02 | Voz feminina padrão (MVP) | Uma única voz fixa para Alice |
 | 21 | 2026-04-02 | ~~Entidade: Custom Mob~~ **→ REVISADO: FakePlayer (ServerPlayer)** | **REVISADO #46:** FakePlayer resolve Baritone nativamente + herda inventário, morte, skin, Create, SVC |
-| 22 | 2026-04-02 | Pathfinding: Baritone | Poderoso, maduro (8.8k stars). Com FakePlayer: funciona nativo sem adapter. |
+| 22 | 2026-04-02 | ~~Pathfinding: Baritone nativo via FakePlayer~~ **→ REVISADO #50** | Descoberto em 2026-04-11 que Baritone é client-side e FakePlayer não resolve o acoplamento nativamente. Automatone e PlayerEngine são Fabric-only. Ver decisão #50. |
 | 23 | 2026-04-02 | Faseamento completo definido e escopado | Concordancia com fases, mas projeto inteiro bem definido até o fim |
 | 24 | 2026-04-02 | Alice é guia/orientadora do jogador | Objetivo principal: orientar o jogador durante o jogo |
 | 25 | 2026-04-02 | Alice tem lore de ter estudado o apocalipse | "Lembranças de outra vida" = pesquisa sobre o apocalipse zumbi |
@@ -128,6 +128,7 @@ Usos:                                                               phi3:3.8b-mi
 | 47 | 2026-04-03 | TTS: Edge TTS cloud pt-BR-FranciscaNeural — decisão #16 REVISADA | Q12 resolvida — gratuito, ilimitado, qualidade neural, sem API key. Piper descartado (sem voz feminina pt_BR) |
 | 48 | 2026-04-03 | STT: faster-whisper (Machine 2, Docker/Portainer) | Q12 complemento STT — REST API OpenAI-compatível, gratuito, ilimitado, estado da arte em reconhecimento de fala |
 | 49 | 2026-04-03 | Modo voz offline configurável (Piper TTS + Vosk STT) | Fallback ativado por config quando Edge TTS ou Machine 2 estiver indisponivel. Modo: online (padrão) ou offline (local). |
+| 50 | 2026-04-11 | Pathfinding: port manual Baritone para Forge server-side; Plan B = Alice-Service (projeto paralelo) | Revisa #22. Rota principal = porte manual via spikes timeboxed (2 semanas hard cap, 6 spikes com kill individual + agregado). Plan B NÃO é fallback runtime: é pivot de projeto que pausa Alice e inicia projeto paralelo Alice-Service (serviço WebSocket em máquina da rede, cap 6 semanas). Ver [docs/spikes/pathfinding-port/README.md](../spikes/pathfinding-port/README.md) e [docs/planejamento/plano-b-alice-service.md](../planejamento/plano-b-alice-service.md). Precedente acadêmico: Microsoft Malmo. Honestidade registrada: sem precedente industrial maduro em Forge 1.20.1. |
 
 ---
 
