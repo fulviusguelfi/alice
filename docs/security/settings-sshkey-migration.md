@@ -84,11 +84,18 @@ Ver seção **3. Patch do settings.json** abaixo.
 Depois que a chave estiver funcionando:
 
 ```bash
+sudo cp /etc/ssh/sshd_config /etc/ssh/sshd_config.bak
 sudo sed -i 's/^#*PasswordAuthentication .*/PasswordAuthentication no/' /etc/ssh/sshd_config
-sudo systemctl restart sshd
+sudo sed -i 's/^#*KbdInteractiveAuthentication .*/KbdInteractiveAuthentication no/' /etc/ssh/sshd_config
+sudo sshd -t && sudo systemctl restart ssh
+grep -E '^(Password|KbdInteractive)Authentication' /etc/ssh/sshd_config
 ```
 
 Isso fecha permanentemente a porta para ataques de brute force na senha.
+
+**Nota sobre OpenSSH 9.x+:** a diretiva `ChallengeResponseAuthentication` foi renomeada para `KbdInteractiveAuthentication` a partir do OpenSSH 8.7. Em Debian 13 (trixie, OpenSSH 10), só a nova diretiva existe e já vem `no` por padrão. Se você estiver em um sistema mais antigo (Debian 11 ou anterior), use `ChallengeResponseAuthentication no` em vez disso.
+
+**Não feche a sessão atual** até abrir uma nova janela e confirmar que `ssh bill` ainda funciona via chave. Se der errado, restaure: `sudo cp /etc/ssh/sshd_config.bak /etc/ssh/sshd_config && sudo systemctl restart ssh`.
 
 ### 2.7 (Opcional) Reescrever histórico do Git
 
