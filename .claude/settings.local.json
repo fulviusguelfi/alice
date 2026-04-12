@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./gradlew --no-daemon compileJava)",
+      "Bash(sed -i 's/import net\\\\.minecraft\\\\.client\\\\.multiplayer\\\\.ClientChunkCache;/import net.minecraft.world.level.chunk.ChunkSource;/' /c/Users/Usuario/Desktop/alice/mod/src/main/java/baritone/utils/BlockStateInterface.java)",
+      "Bash(sed -i 's/private final ClientChunkCache provider;/private final ChunkSource provider;/' /c/Users/Usuario/Desktop/alice/mod/src/main/java/baritone/utils/BlockStateInterface.java)",
+      "Bash(sed -i 's/this.provider = \\(ClientChunkCache\\) world.getChunkSource\\(\\);/this.provider = world.getChunkSource\\(\\);/' /c/Users/Usuario/Desktop/alice/mod/src/main/java/baritone/utils/BlockStateInterface.java)",
+      "Bash(sed -i 's/import net\\\\.minecraft\\\\.client\\\\.multiplayer\\\\.ClientLevel;/import net.minecraft.server.level.ServerLevel;/' /c/Users/Usuario/Desktop/alice/mod/src/main/java/baritone/process/MineProcess.java)",
+      "Bash(sed -i 's/for \\(Entity entity : \\(\\(ClientLevel\\) ctx.world\\(\\)\\).entitiesForRendering\\(\\)\\)/for \\(Entity entity : \\(\\(ServerLevel\\) ctx.world\\(\\)\\).getAllEntities\\(\\)\\)/' /c/Users/Usuario/Desktop/alice/mod/src/main/java/baritone/process/MineProcess.java)",
+      "Bash(sed -i 's/import net\\\\.minecraft\\\\.client\\\\.Minecraft;/import net.minecraftforge.fml.loading.FMLPaths;/' /c/Users/Usuario/Desktop/alice/mod/src/main/java/baritone/api/command/datatypes/RelativeFile.java)",
+      "Bash(sed -i 's/public static File gameDir\\(Minecraft mc\\) {/public static File gameDir\\(\\) {/' /c/Users/Usuario/Desktop/alice/mod/src/main/java/baritone/api/command/datatypes/RelativeFile.java)",
+      "Bash(sed -i 's/File gameDir = mc.gameDirectory.getAbsoluteFile\\(\\);/File gameDir = FMLPaths.GAMEDIR.get\\(\\).toFile\\(\\).getAbsoluteFile\\(\\);/' /c/Users/Usuario/Desktop/alice/mod/src/main/java/baritone/api/command/datatypes/RelativeFile.java)",
+      "Bash(sed -i '/public static File gameDir\\(\\) {/{n;s/return gameDir\\(Helper.mc\\);/return gameDir\\(\\);/}' /c/Users/Usuario/Desktop/alice/mod/src/main/java/baritone/api/command/datatypes/RelativeFile.java)",
+      "Read(//c/Users/Usuario/.gradle/**)",
+      "Bash(./gradlew compileJava)"
+    ]
+  }
+}

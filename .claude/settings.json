@@ -112,12 +112,24 @@
       "Bash(scp bill:*)",
       "Bash(python -c \"import json; j=json.load\\(open\\('.claude/settings.json'\\)\\); print\\('JSON OK, allow entries:', len\\(j['permissions']['allow']\\)\\)\")",
       "Bash(ssh -i \"/c/Users/Usuario/.ssh/alice_bill\" bill@192.168.0.200 \"hostname; echo 'key auth OK'\")",
-      "Read(//c/Users/Usuario/.ssh/**)"
+      "Read(//c/Users/Usuario/.ssh/**)",
+      "Bash(pip show:*)",
+      "Bash(git filter-repo:*)",
+      "Bash(git commit -m 'docs\\(security\\): note OpenSSH 9+ rename of ChallengeResponseAuthentication:*)",
+      "Bash(pip install:*)",
+      "Bash(mkdir -p /c/Users/Usuario/Desktop/alice-backups)",
+      "Bash(git bundle:*)",
+      "Read(//c/Users/Usuario/Desktop/**)",
+      "Bash(git-filter-repo --replace-text /tmp/redact.txt --force)",
+      "Bash(git remote:*)",
+      "Bash(git push:*)",
+      "Bash(ls /c/Users/Usuario/Desktop/alice/mod/src/main/java/baritone/process/Elytra*.java)"
     ],
     "additionalDirectories": [
       "c:\\Users\\Usuario\\Desktop\\alice\\docs",
       "C:\\Users\\Usuario\\Desktop\\alice\\docs",
-      "c:\\Users\\Usuario\\Desktop\\alice\\.claude"
+      "c:\\Users\\Usuario\\Desktop\\alice\\.claude",
+      "\\tmp"
     ]
   }
 }
