@@ -1,0 +1,43 @@
+{
+  "materials": [
+    {
+      "item": {
+        "item": "create:rose_quartz"
+      },
+      "count": 15
+    },
+    {
+      "item": {
+        "item": "the_deeper_void:netherite_rhenium_alloy"
+      },
+      "count": 2
+    },
+    {
+      "item": {
+        "item": "mcore:steel_sheet"
+      },
+      "count": 12
+    },
+    {
+      "item": {
+        "item": "the_deeper_void:tungsten_ingot"
+      },
+      "count": 48
+    },
+    {
+      "item": {
+        "type": "forge:partial_nbt",
+        "item": "tacz:modern_kinetic_gun",
+        "nbt": {
+          "GunId": "sfms:lvsa_c_erode"
+        }
+      },
+      "count": 1
+    }
+  ],
+  "result": {
+    "type": "gun",
+    "id": "sfms:lvsa_c_erode_lmg"
+  },
+  "type": "tacz:gun_smith_table_crafting"
+ }

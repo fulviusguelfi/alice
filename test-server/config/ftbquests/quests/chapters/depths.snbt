@@ -1,0 +1,401 @@
+{
+	default_hide_dependency_lines: false
+	default_quest_shape: "hexagon"
+	filename: "depths"
+	group: "3F44A23A6891B87A"
+	id: "7FCE33F5E9B62B58"
+	order_index: 0
+	quest_links: [ ]
+	quests: [
+		{
+			description: ["&oFind a drill room at the bottom of the overworld near your spawnpoint.&r"]
+			id: "032803DD47F4EF79"
+			shape: "hexagon"
+			size: 3.0d
+			subtitle: "&#FFAA00So it begins"
+			tasks: [{
+				icon: "minecraft:bedrock"
+				id: "42F06DAE572B0820"
+				structure: "jeffs_cursed_walking_structures:neoteleporter"
+				title: "Find a drill room at the bottom of the overworld"
+				type: "structure"
+			}]
+			title: "&#AA0000Deep Down"
+			x: -13.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["032803DD47F4EF79"]
+			id: "6939F1F14E689BF7"
+			size: 2.0d
+			subtitle: "&#AA0000To Escape, build up to y256"
+			tasks: [{
+				dimension: "the_deeper_void:void_dimension"
+				icon: "minecraft:deepslate"
+				id: "2C0AFED44507B15B"
+				title: "Descent Into Nowhere"
+				type: "dimension"
+			}]
+			title: "&#AA1155Descent Into..."
+			x: -7.5d
+			y: 0.0d
+		}
+		{
+			dependencies: ["6939F1F14E689BF7"]
+			icon: "the_deeper_void:labolatory_block"
+			id: "6D07D6F4E0D525DE"
+			size: 1.0d
+			subtitle: "&#FF5555Found on the surface"
+			tasks: [{
+				id: "4A9A1AEA00CB1F4C"
+				structure: "the_deeper_void:lab"
+				title: "&#AA0000Find : Labolatory"
+				type: "structure"
+			}]
+			title: "&#FFAA00Find : Labolatory"
+			x: -5.5d
+			y: -2.5d
+		}
+		{
+			dependencies: ["6939F1F14E689BF7"]
+			icon: {
+				Count: 1
+				id: "mcore:steel_pickaxe"
+				tag: {
+					Damage: 0
+				}
+			}
+			id: "525FC8E20ABBDA10"
+			size: 1.0d
+			subtitle: "&#FF5555Found on the surface"
+			tasks: [{
+				id: "2631194A8A506172"
+				structure: "the_deeper_void:mineshaft"
+				title: "&#FF5555Find : Mineshaft"
+				type: "structure"
+			}]
+			x: -9.0d
+			y: -2.5d
+		}
+		{
+			dependencies: ["6939F1F14E689BF7"]
+			hide_dependent_lines: true
+			icon: "minecraft:deepslate_bricks"
+			id: "78F594F9C86E5F48"
+			size: 1.0d
+			subtitle: "&#FF5555Found on the surface"
+			tasks: [{
+				id: "1F38CE2542088C45"
+				structure: "the_deeper_void:quarry"
+				title: "&#AA0000Find : Quarry"
+				type: "structure"
+			}]
+			x: -7.0d
+			y: -2.5d
+		}
+		{
+			dependencies: ["6939F1F14E689BF7"]
+			id: "2E179B2C2CB9D36F"
+			subtitle: "&#AA0000Defeat your first mutant"
+			tasks: [{
+				entity: "mutantmonsters:mutant_zombie"
+				icon: "mutantmonsters:mutant_zombie_spawn_egg"
+				id: "790433367B6E773C"
+				title: "&#FF5555Hostile Encounter"
+				type: "kill"
+				value: 1L
+			}]
+			x: -9.5d
+			y: 1.0d
+		}
+		{
+			dependencies: ["6939F1F14E689BF7"]
+			id: "6E9F501A9AF7D4A4"
+			subtitle: "&#FF5555Uncommon Resource of the Depths, used in a lot of recipes"
+			tasks: [{
+				id: "4D886848616F972E"
+				item: "the_deeper_void:raw_tungsten"
+				type: "item"
+			}]
+			title: "&#55FF55Tungsten"
+			x: -7.0d
+			y: 1.5d
+		}
+		{
+			dependencies: ["23B4A7D223B0BA35"]
+			id: "68269CE4B482897C"
+			shape: "pentagon"
+			subtitle: "&#FF5555Found from columbite ore generating deep in the depths"
+			tasks: [{
+				id: "13741B3BD3A686DB"
+				item: "the_deeper_void:rhenium"
+				type: "item"
+			}]
+			title: "&#FF5555Rhenium"
+			x: -3.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["6E9F501A9AF7D4A4"]
+			id: "23658ECB47A148F5"
+			subtitle: "&#FF5555You can find titanium in the depths aswell, it generates much more commonly here"
+			tasks: [{
+				id: "114A46C721E788F4"
+				item: "mcore:titanium_ingot"
+				type: "item"
+			}]
+			title: "&#FFAA00Familliar Face"
+			x: -6.0d
+			y: 2.5d
+		}
+		{
+			dependencies: ["23658ECB47A148F5"]
+			hide_until_deps_complete: true
+			id: "0741D1F1C161222C"
+			shape: "gear"
+			subtitle: "&#FF5555Want to obtain titanium faster? go below y-48"
+			tasks: [{
+				id: "5E02198ECB132426"
+				item: "the_deeper_void:raw_rutile"
+				type: "item"
+			}]
+			title: "&#FFAA00Are You Brave Enough?"
+			x: -5.5d
+			y: 4.5d
+		}
+		{
+			dependencies: ["23658ECB47A148F5"]
+			hide_until_deps_complete: true
+			id: "7196AFC6C53A8BB9"
+			size: 2.0d
+			subtitle: "&#FFAA00Obtain Netherite"
+			tasks: [{
+				id: "331048A6ACD27D44"
+				item: "minecraft:netherite_ingot"
+				type: "item"
+			}]
+			title: "&#AA0055Hidden Away"
+			x: -3.0d
+			y: 3.0d
+		}
+		{
+			dependencies: ["6939F1F14E689BF7"]
+			icon: "the_deeper_void:void_refinery_control_pad"
+			id: "23B4A7D223B0BA35"
+			shape: "gear"
+			size: 2.0d
+			subtitle: "&#FF5555Make a Depth's Refinery, Used in refining metals and also makes producing steel not as costly"
+			tasks: [
+				{
+					count: 9L
+					id: "56714DD756F75673"
+					item: "the_deeper_void:void_refinery_casing"
+					type: "item"
+				}
+				{
+					count: 5L
+					id: "2532B075F1A02B40"
+					item: { Count: 5, id: "the_deeper_void:void_refinery_casing" }
+					type: "item"
+				}
+				{
+					id: "06FDF45995B12FF1"
+					item: "the_deeper_void:void_refinery_control_pad"
+					type: "item"
+				}
+				{
+					count: 8L
+					id: "51895A330E386C0E"
+					item: { Count: 8, id: "the_deeper_void:void_refinery_pressure_tank" }
+					type: "item"
+				}
+			]
+			title: "&#FF5555Refining Metals"
+			x: -5.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["68269CE4B482897C"]
+			id: "54E09F2C311AD944"
+			subtitle: "&#FF5555Used in gun recipes"
+			tasks: [{
+				id: "641C6C26E222BCB2"
+				item: "the_deeper_void:tungsten_rhenium_alloy"
+				type: "item"
+			}]
+			title: "&#FF5555Tungsten-Rhenium Alloy"
+			x: -2.0d
+			y: -1.5d
+		}
+		{
+			dependencies: ["68269CE4B482897C"]
+			id: "4FAACEE060D4CF88"
+			subtitle: "&#FF5555Used in gun recipes"
+			tasks: [{
+				id: "74BC8F1035210496"
+				item: "the_deeper_void:titanium_rhenium_alloy"
+				type: "item"
+			}]
+			title: "&#FF5555Titanium-Rhenium Alloy"
+			x: -2.0d
+			y: 1.5d
+		}
+		{
+			dependencies: ["68269CE4B482897C"]
+			id: "2DEC0D5B2668231E"
+			subtitle: "&#FF5555Used in the highest-tier of guns"
+			tasks: [{
+				id: "6CE45B577D9EB3EB"
+				item: "the_deeper_void:netherite_rhenium_alloy"
+				type: "item"
+			}]
+			title: "&#FF5555Best Of The Best"
+			x: -1.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["4A9A1AEA00CB1F4C"]
+			id: "2EDEA741C802B808"
+			subtitle: "&#AA5555Find Out"
+			tasks: [{
+				id: "35B13B867A4636DC"
+				item: "the_deeper_void:sealed_box"
+				type: "item"
+			}]
+			title: "&#FF5555What Will It Be?"
+			x: -5.0d
+			y: -3.5d
+		}
+		{
+			dependencies: ["6E9F501A9AF7D4A4"]
+			id: "2B72E553016832A8"
+			subtitle: "&#FF5555You can craft new things with it"
+			tasks: [{
+				id: "4A16D9AC38DAD087"
+				item: "the_deeper_void:tungsten_ingot"
+				type: "item"
+			}]
+			title: "&#55FF55Tungsten, But Diffrent Form"
+			x: -8.5d
+			y: 2.5d
+		}
+		{
+			dependencies: ["2B72E553016832A8"]
+			id: "3FF69D93DCEF5ABB"
+			subtitle: "&#FF5555Craft a Tungsten Sword"
+			tasks: [{
+				id: "7A937E3F4BD30E90"
+				item: {
+					Count: 1
+					id: "the_deeper_void:tungsten_sword"
+					tag: {
+						Damage: 0
+					}
+				}
+				type: "item"
+			}]
+			title: "&#55FF55Tungsten Sword"
+			x: -8.0d
+			y: 4.5d
+		}
+		{
+			dependencies: ["2B72E553016832A8"]
+			id: "0A5ED517B9A26AC1"
+			subtitle: "&#FF5555Craft a Tungsten Shovel"
+			tasks: [{
+				id: "7F9AF41F20BA802F"
+				item: {
+					Count: 1
+					id: "the_deeper_void:tungsten_shovel"
+					tag: {
+						Damage: 0
+					}
+				}
+				type: "item"
+			}]
+			title: "&#55FF55Tungsten Shovel"
+			x: -9.5d
+			y: 4.5d
+		}
+		{
+			dependencies: ["2B72E553016832A8"]
+			id: "4444E3A1AE1E2CAC"
+			subtitle: "&#FF5555Craft a Tungsten Axe"
+			tasks: [{
+				id: "7854C0595D37F873"
+				item: {
+					Count: 1
+					id: "the_deeper_void:tungsten_axe"
+					tag: {
+						Damage: 0
+					}
+				}
+				type: "item"
+			}]
+			title: "&#55FF55Tungsten Axe"
+			x: -10.5d
+			y: 3.5d
+		}
+		{
+			dependencies: ["2B72E553016832A8"]
+			id: "4E696095FE0FD2FE"
+			subtitle: "&#FF5555Craft a Tungsten Pickaxe"
+			tasks: [{
+				id: "2ED365905B82DEBF"
+				item: {
+					Count: 1
+					id: "the_deeper_void:tungsten_pickaxe"
+					tag: {
+						Damage: 0
+					}
+				}
+				type: "item"
+			}]
+			title: "&#55FF55Tungsten Pickaxe"
+			x: -10.5d
+			y: 2.0d
+		}
+		{
+			dependencies: ["4FAACEE060D4CF88"]
+			id: "56D6254756313F87"
+			subtitle: "&#FF5555Thrusters Allow you to easily leave the Depths by making them point upward and then clicking them (they also need to be turned on with redstone)"
+			tasks: [{
+				id: "5B8807F217520C8D"
+				item: "the_deeper_void:thruster"
+				type: "item"
+			}]
+			title: "&#FF5555Easy Escape"
+			x: 0.0d
+			y: 2.0d
+		}
+		{
+			dependencies: ["54E09F2C311AD944"]
+			id: "5C9492D4261A0606"
+			subtitle: "&#FF5555Obtain the 2nd tier refinery speed upgrade"
+			tasks: [{
+				id: "177893041074512C"
+				item: "the_deeper_void:speed_upgrade_lvl_2"
+				type: "item"
+			}]
+			title: "&#FF5555Use Tungsten To Make More Tungsten"
+			x: 0.0d
+			y: -2.0d
+		}
+		{
+			id: "2D8D6FD2E7CA9F50"
+			shape: "octagon"
+			subtitle: "&#FF2222Deep below you will encounter pressure, to check the amount of pressure you have, craft a pressure gauge"
+			tasks: [{
+				advancement: "the_deeper_void:extreme_pressure"
+				criterion: ""
+				icon: "the_deeper_void:pressure_gauge"
+				id: "0053E36F6F0C0CF6"
+				title: "&#AA0000Pressure Mechanic"
+				type: "advancement"
+			}]
+			x: -9.5d
+			y: -1.0d
+		}
+	]
+	title: "Depths"
+}

@@ -1,0 +1,24 @@
+{
+  "materials": [
+    {
+      "item": {
+        "tag": "forge:ingots/copper"
+      },
+      "count": 15
+    },
+    {
+      "item": {
+        "tag": "minecraft:logs"
+      },
+      "count": 4
+    }
+  ],
+  "result": {
+    "type": "gun",
+    "id": "hamster:sw_mk2",
+    "attachments": {
+      "scope": "hamster:speedloader"
+    }
+  },
+  "type": "tacz:gun_smith_table_crafting"
+}

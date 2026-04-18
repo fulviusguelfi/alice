@@ -12,7 +12,17 @@
       "Bash(sed -i 's/File gameDir = mc.gameDirectory.getAbsoluteFile\\(\\);/File gameDir = FMLPaths.GAMEDIR.get\\(\\).toFile\\(\\).getAbsoluteFile\\(\\);/' /c/Users/Usuario/Desktop/alice/mod/src/main/java/baritone/api/command/datatypes/RelativeFile.java)",
       "Bash(sed -i '/public static File gameDir\\(\\) {/{n;s/return gameDir\\(Helper.mc\\);/return gameDir\\(\\);/}' /c/Users/Usuario/Desktop/alice/mod/src/main/java/baritone/api/command/datatypes/RelativeFile.java)",
       "Read(//c/Users/Usuario/.gradle/**)",
-      "Bash(./gradlew compileJava)"
+      "Bash(./gradlew compileJava)",
+      "Bash(./gradlew jar:*)",
+      "Bash(timeout 120 ./gradlew runServer)",
+      "Bash(tee /tmp/alice-server.log)",
+      "Bash(taskkill //F //FI \"IMAGENAME eq java.exe\")",
+      "Bash(netstat -ano)",
+      "Read(//c/Users/Usuario/**)",
+      "Bash(jar tf:*)"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\Usuario\\Desktop\\forge-1.20.1-server"
     ]
   }
 }

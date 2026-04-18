@@ -1,0 +1,17 @@
+{
+	id: "3cbb85ab-cf96-331e-ad25-5fbd37876402"
+	type: "player"
+	player_name: "SteveTMartin"
+	ranks: {
+		3cbb85ab-cf96-331e-ad25-5fbd37876402: "owner"
+	}
+	properties: {
+		"ftbteams:display_name": "SteveTMartin"
+		"ftbteams:description": ""
+		"ftbteams:color": "#F6FF59"
+		"ftbteams:free_to_join": 0b
+		"ftbteams:max_msg_history_size": 1000
+	}
+	message_history: [ ]
+	extra: { }
+}

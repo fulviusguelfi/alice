@@ -1,0 +1,40 @@
+
+[llm]
+	#LLM API base URL (OpenAI-compatible endpoint)
+	url = "https://api.groq.com/openai/v1"
+	#API key for the LLM provider
+	apiKey = ""
+	#Model to use for chat responses
+	model = "llama-3.1-8b-instant"
+	#HTTP request timeout in milliseconds
+	#Range: 1000 ~ 120000
+	timeoutMs = 30000
+	#Maximum tokens in LLM response
+	#Range: 50 ~ 1000
+	maxTokens = 200
+
+[behavior]
+	#Radius in blocks for perceiving entities
+	#Range: 4 ~ 64
+	perceptionRadius = 16
+	#Radius in blocks for engaging hostile mobs
+	#Range: 2 ~ 32
+	combatRadius = 8
+	#HP fraction below which Alice flees (0.0 to 1.0)
+	#Range: 0.0 ~ 1.0
+	fleeHealthThreshold = 0.2
+	#HP fraction below which Alice sprint-flees (0.0 to 1.0)
+	#Range: 0.0 ~ 1.0
+	criticalHealthThreshold = 0.1
+	#Blocks behind the player Alice tries to maintain when following
+	#Range: 1 ~ 16
+	followDistance = 4
+	#Whether Alice automatically attacks nearby hostile mobs
+	autoCombat = true
+
+[debug]
+	#Log rule activations
+	logRules = false
+	#Log LLM requests and responses
+	logLlm = true
+

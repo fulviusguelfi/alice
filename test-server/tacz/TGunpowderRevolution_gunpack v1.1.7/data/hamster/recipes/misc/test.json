@@ -1,0 +1,39 @@
+{
+  "materials": [
+    {
+      "item": {
+        "item": "createdeco:industrial_iron_ingot"
+      },
+      "count": 24
+    },
+    {
+      "item": {
+        "tag": "create:toolboxes"
+      },
+      "count": 1
+    },
+    {
+      "item": {
+        "tag": "forge:ingots/brass"
+      },
+      "count": 24
+    }
+  ],
+  "result": {
+    "type": "custom",
+    "group": "tacz:ammo",
+    "item": {
+      "item": "tacz:gun_smith_table",
+      "nbt": {
+        "display": {
+          "lore": [
+            "{\"translate\":\"§6§lThe Next Step.\"}"          
+          ],
+          "Name": "{\"translate\":\"§6§lThe Next Step.\"}"
+        }
+      },
+      "count": 1
+    }
+  },
+  "type": "tacz:gun_smith_table_crafting"
+} 

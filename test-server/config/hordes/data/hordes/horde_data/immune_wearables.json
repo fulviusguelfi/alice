@@ -1,0 +1,210 @@
+[
+  {
+    "item": "marbledsarsenal:helmet_cm6m_gas_mask",
+    "multiplier": 0.86
+  },
+  {
+    "item": "marbledsarsenal:un_helmet_cm6m_gas_mask",
+    "multiplier": 0.86
+  },
+  {
+    "item": "marbledsarsenal:olive_helmet_cm6m_gas_mask",
+    "multiplier": 0.86
+  },
+  {
+    "item": "marbledsarsenal:helmet_cm7m_gas_mask",
+    "multiplier": 0.86
+  },
+  {
+    "item": "marbledsarsenal:un_helmet_cm7m_gas_mask",
+    "multiplier": 0.86
+  },
+  {
+    "item": "marbledsarsenal:olive_helmet_cm7m_gas_mask",
+    "multiplier": 0.86
+  },
+  {
+    "item": "marbledsarsenal:helmet_cm8m_gas_mask",
+    "multiplier": 0.86
+  },
+  {
+    "item": "marbledsarsenal:un_helmet_cm8m_gas_mask",
+    "multiplier": 0.86
+  },
+  {
+    "item": "marbledsarsenal:olive_helmet_cm8m_gas_mask",
+    "multiplier": 0.86
+  },
+  {
+    "item": "marbledsarsenal:combat_helmet",
+    "multiplier": 0.86
+  },
+  {
+    "item": "marbledsarsenal:un_combat_helmet",
+    "multiplier": 0.86
+  },
+  {
+    "item": "marbledsarsenal:olive_combat_helmet",
+    "multiplier": 0.86
+  },
+  {
+    "item": "marbledsarsenal:riot_armor_helmet",
+    "multiplier": 0.86
+  },
+  {
+    "item": "marbledsarsenal:swat_armor_helmet",
+    "multiplier": 0.86
+  },
+  {
+    "item": "marbledsarsenal:winter_military_armor_helmet",
+    "multiplier": 0.86
+  },
+  {
+    "item": "marbledsarsenal:desert_military_armor_helmet",
+    "multiplier": 0.86
+  },
+  {
+    "item": "marbledsarsenal:hazmat_armor_helmet",
+    "multiplier": 0.91
+  },
+  {
+    "item": "marbledsarsenal:olive_juggernaut_armor_helmet",
+    "multiplier": 0.75
+  },
+  {
+    "item": "marbledsarsenal:black_juggernaut_armor_helmet",
+    "multiplier": 0.75
+  },
+  {
+    "item": "mcore:steel_helmet",
+    "multiplier": 0.86
+  },
+  {
+    "item": "mcore:titanium_helmet",
+    "multiplier": 0.86
+  },
+  {
+    "item": "the_deeper_void:tungsten_armor_helmet",
+    "multiplier": 0.86
+  },
+  {
+    "item": "the_deeper_void:tungsten_armor_chestplate",
+    "multiplier": 0.86
+  },
+  {
+    "item": "marbledsarsenal:riot_armor_chestplate",
+    "multiplier": 0.86
+  },
+  {
+    "item": "marbledsarsenal:swat_armor_chestplate",
+    "multiplier": 0.86
+  },
+  {
+    "item": "marbledsarsenal:winter_military_armor_chestplate",
+    "multiplier": 0.86
+  },
+  {
+    "item": "marbledsarsenal:desert_military_armor_chestplate",
+    "multiplier": 0.86
+  },
+  {
+    "item": "marbledsarsenal:hazmat_armor_chestplate",
+    "multiplier": 0.91
+  },
+  {
+    "item": "marbledsarsenal:olive_juggernaut_armor_chestplate",
+    "multiplier": 0.75
+  },
+  {
+    "item": "marbledsarsenal:black_juggernaut_armor_chestplate",
+    "multiplier": 0.75
+  },
+  {
+    "item": "mcore:steel_chestplate",
+    "multiplier": 0.86
+  },
+  {
+    "item": "mcore:titanium_chestplate",
+    "multiplier": 0.86
+  },
+  {
+    "item": "the_deeper_void:tungsten_armor_leggings",
+    "multiplier": 0.86
+  },
+  {
+    "item": "marbledsarsenal:riot_armor_leggings",
+    "multiplier": 0.86
+  },
+  {
+    "item": "marbledsarsenal:swat_armor_leggings",
+    "multiplier": 0.86
+  },
+  {
+    "item": "marbledsarsenal:winter_military_armor_leggings",
+    "multiplier": 0.86
+  },
+  {
+    "item": "marbledsarsenal:desert_military_armor_leggings",
+    "multiplier": 0.86
+  },
+  {
+    "item": "marbledsarsenal:hazmat_armor_leggings",
+    "multiplier": 0.91
+  },
+  {
+    "item": "marbledsarsenal:olive_juggernaut_armor_leggings",
+    "multiplier": 0.75
+  },
+  {
+    "item": "marbledsarsenal:black_juggernaut_armor_leggings",
+    "multiplier": 0.75
+  },
+  {
+    "item": "mcore:steel_leggings",
+    "multiplier": 0.86
+  },
+  {
+    "item": "mcore:titanium_leggings",
+    "multiplier": 0.86
+  },
+  {
+    "item": "the_deeper_void:tungsten_armor_boots",
+    "multiplier": 0.86
+  },
+  {
+    "item": "marbledsarsenal:riot_armor_boots",
+    "multiplier": 0.86
+  },
+  {
+    "item": "marbledsarsenal:swat_armor_boots",
+    "multiplier": 0.86
+  },
+  {
+    "item": "marbledsarsenal:winter_military_armor_boots",
+    "multiplier": 0.86
+  },
+  {
+    "item": "marbledsarsenal:desert_military_armor_boots",
+    "multiplier": 0.86
+  },
+  {
+    "item": "marbledsarsenal:hazmat_armor_boots",
+    "multiplier": 0.91
+  },
+  {
+    "item": "marbledsarsenal:olive_juggernaut_armor_boots",
+    "multiplier": 0.75
+  },
+  {
+    "item": "marbledsarsenal:black_juggernaut_armor_boots",
+    "multiplier": 0.75
+  },
+  {
+    "item": "mcore:steel_boots",
+    "multiplier": 0.86
+  },
+  {
+    "item": "mcore:titanium_boots",
+    "multiplier": 0.86
+  }
+]

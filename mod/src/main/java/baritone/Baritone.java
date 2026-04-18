@@ -155,6 +155,26 @@ public class Baritone implements IBaritone {
     }
 
     /**
+     * Called after onTick to execute path following and set rotation.
+     * In vanilla Baritone this is fired by a Mixin before the player sends its position packet.
+     * Server-side, we fire it explicitly between serverTick() and fakePlayer.tick().
+     */
+    public void serverPlayerUpdate() {
+        this.gameEventHandler.onPlayerUpdate(new baritone.api.event.events.PlayerUpdateEvent(
+                baritone.api.event.events.type.EventState.PRE
+        ));
+    }
+
+    /**
+     * Called after fakePlayer.tick() to finalize player-update state.
+     */
+    public void serverPlayerUpdatePost() {
+        this.gameEventHandler.onPlayerUpdate(new baritone.api.event.events.PlayerUpdateEvent(
+                baritone.api.event.events.type.EventState.POST
+        ));
+    }
+
+    /**
      * Called after server tick to finalize state.
      */
     public void serverPostTick() {
