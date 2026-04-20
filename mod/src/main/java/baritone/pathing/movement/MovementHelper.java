@@ -31,6 +31,7 @@ import baritone.utils.BlockStateInterface;
 import baritone.utils.ToolSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.block.*;
@@ -140,8 +141,25 @@ public interface MovementHelper extends ActionCosts, Helper {
         if (block instanceof AirBlock) {
             return YES;
         }
-        if (block instanceof BaseFireBlock || block == Blocks.COBWEB || block == Blocks.END_PORTAL || block == Blocks.COCOA || block instanceof AbstractSkullBlock || block == Blocks.BUBBLE_COLUMN || block instanceof ShulkerBoxBlock || block instanceof SlabBlock || block instanceof TrapDoorBlock || block == Blocks.HONEY_BLOCK || block == Blocks.END_ROD || block == Blocks.SWEET_BERRY_BUSH || block == Blocks.POINTED_DRIPSTONE || block instanceof AmethystClusterBlock || block instanceof AzaleaBlock) {
+        // Climbables: Baritone needs to pathfind THROUGH the block stack (pillar each cell).
+        // Vanilla Blocks.LADDER/VINE override isPathfindable(LAND)=true so the fallthrough
+        // below handles them, but modded climbables (create:rope, farmersdelight:rope, etc.)
+        // may return false from isPathfindable under null-access args, which would silently
+        // force the pathfinder to try to MINE the rope instead of climbing. Short-circuit:
+        // anything tagged #minecraft:climbable is traversable by pathfinding.
+        if (isClimbable(state)) {
+            return YES;
+        }
+        if (block instanceof BaseFireBlock || block == Blocks.COBWEB || block == Blocks.END_PORTAL || block == Blocks.COCOA || block instanceof AbstractSkullBlock || block == Blocks.BUBBLE_COLUMN || block instanceof ShulkerBoxBlock || block instanceof SlabBlock || block == Blocks.HONEY_BLOCK || block == Blocks.END_ROD || block == Blocks.SWEET_BERRY_BUSH || block == Blocks.POINTED_DRIPSTONE || block instanceof AmethystClusterBlock || block instanceof AzaleaBlock) {
             return NO;
+        }
+        if (block instanceof TrapDoorBlock) {
+            // Trapdoor: impassavel se ferro (nao da pra abrir sem redstone);
+            // caso contrario, MovementTraverse vai clicar pra abrir e atravessa.
+            if (block == Blocks.IRON_TRAPDOOR) {
+                return NO;
+            }
+            return YES;
         }
         if (block == Blocks.BIG_DRIPLEAF) {
             return NO;
@@ -244,8 +262,7 @@ public interface MovementHelper extends ActionCosts, Helper {
         if (block instanceof BaseFireBlock
                 || block == Blocks.TRIPWIRE
                 || block == Blocks.COBWEB
-                || block == Blocks.VINE
-                || block == Blocks.LADDER
+                || isClimbable(state)
                 || block == Blocks.COCOA
                 || block instanceof AzaleaBlock
                 || block instanceof DoorBlock
@@ -429,6 +446,13 @@ public interface MovementHelper extends ActionCosts, Helper {
         if (block == Blocks.LADDER || (block == Blocks.VINE && Baritone.settings().allowVines.value)) { // TODO reconsider this
             return YES;
         }
+        // Scaffolding, create:rope, farmersdelight:rope, twisting_vines, weeping_vines — all
+        // tagged #minecraft:climbable. MovementDownward.cost checks canWalkOn(y-2) to ensure
+        // there's something to stand on after descending one cell of the climb column; the cell
+        // below the destination cell is part of the same climbable stack, so report YES.
+        if (isClimbable(state)) {
+            return YES;
+        }
         if (block == Blocks.FARMLAND || block == Blocks.DIRT_PATH || block == Blocks.SOUL_SAND) {
             return YES;
         }
@@ -527,7 +551,7 @@ public interface MovementHelper extends ActionCosts, Helper {
      */
     static boolean mustBeSolidToWalkOn(CalculationContext context, int x, int y, int z, BlockState state) {
         Block block = state.getBlock();
-        if (block == Blocks.LADDER || block == Blocks.VINE) {
+        if (isClimbable(state)) {
             return false;
         }
         if (!state.getFluidState().isEmpty()) {
@@ -705,6 +729,17 @@ public interface MovementHelper extends ActionCosts, Helper {
     static boolean isWater(BlockState state) {
         Fluid f = state.getFluidState().getType();
         return f == Fluids.WATER || f == Fluids.FLOWING_WATER;
+    }
+
+    /**
+     * Whether the block is tagged {@code #minecraft:climbable} — includes vanilla ladder, vine,
+     * scaffolding, twisting/weeping/cave vines, and any modded block that opts-in to the tag
+     * (e.g. {@code create:rope}, {@code farmersdelight:rope}). Vanilla Baritone hardcoded only
+     * {@code Blocks.LADDER} and {@code Blocks.VINE}; this extension lets Alice pathfind through
+     * every {@code #climbable} block on the server.
+     */
+    static boolean isClimbable(BlockState state) {
+        return state.is(BlockTags.CLIMBABLE);
     }
 
     /**

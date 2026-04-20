@@ -40,6 +40,9 @@ public class AliceMod {
         IEventBus modEventBus = context.getModEventBus();
         modEventBus.addListener(this::commonSetup);
         MinecraftForge.EVENT_BUS.register(this);
+        MinecraftForge.EVENT_BUS.register(new AliceCommands());
+        AliceCommands.bindEntity(aliceEntity);
+        AliceCommands.bindChatHandler(chatHandler);
         context.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
 

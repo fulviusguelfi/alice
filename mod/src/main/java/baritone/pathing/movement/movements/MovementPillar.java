@@ -41,6 +41,8 @@ import java.util.Set;
 
 public class MovementPillar extends Movement {
 
+    private static int pillarDebugCounter = 0;
+
     public MovementPillar(IBaritone baritone, BetterBlockPos start, BetterBlockPos end) {
         super(baritone, start, end, new BetterBlockPos[]{start.above(2)}, start);
     }
@@ -58,17 +60,17 @@ public class MovementPillar extends Movement {
     public static double cost(CalculationContext context, int x, int y, int z) {
         BlockState fromState = context.get(x, y, z);
         Block from = fromState.getBlock();
-        boolean ladder = from == Blocks.LADDER || from == Blocks.VINE;
+        boolean ladder = MovementHelper.isClimbable(fromState);
         BlockState fromDown = context.get(x, y - 1, z);
         if (!ladder) {
-            if (fromDown.getBlock() == Blocks.LADDER || fromDown.getBlock() == Blocks.VINE) {
-                return COST_INF; // can't pillar from a ladder or vine onto something that isn't also climbable
+            if (MovementHelper.isClimbable(fromDown)) {
+                return COST_INF; // can't pillar from a climbable onto something that isn't also climbable
             }
             if (fromDown.getBlock() instanceof SlabBlock && fromDown.getValue(SlabBlock.TYPE) == SlabType.BOTTOM) {
                 return COST_INF; // can't pillar up from a bottom slab onto a non ladder
             }
         }
-        if (from == Blocks.VINE && !hasAgainst(context, x, y, z)) { // TODO this vine can't be climbed, but we could place a pillar still since vines are replacable, no? perhaps the pillar jump would be impossible because of the slowdown actually.
+        if (from == Blocks.VINE && !hasAgainst(context, x, y, z)) { // vanilla vine needs lateral support (tag doesn't imply support)
             return COST_INF;
         }
         BlockState toBreak = context.get(x, y + 2, z);
@@ -109,8 +111,8 @@ public class MovementPillar extends Movement {
             return COST_INF;
         }
         if (hardness != 0) {
-            if (toBreakBlock == Blocks.LADDER || toBreakBlock == Blocks.VINE) {
-                hardness = 0; // we won't actually need to break the ladder / vine because we're going to use it
+            if (MovementHelper.isClimbable(toBreak)) {
+                hardness = 0; // we won't actually need to break the climbable because we're going to use it
             } else {
                 BlockState check = context.get(x, y + 3, z); // the block on top of the one we're going to break, could it fall on us?
                 if (check.getBlock() instanceof FallingBlock) {
@@ -185,8 +187,9 @@ public class MovementPillar extends Movement {
             }
             return state;
         }
-        boolean ladder = fromDown.getBlock() == Blocks.LADDER || fromDown.getBlock() == Blocks.VINE;
+        boolean ladder = MovementHelper.isClimbable(fromDown);
         boolean vine = fromDown.getBlock() == Blocks.VINE;
+        boolean vanillaLadder = fromDown.getBlock() == Blocks.LADDER;
         Rotation rotation = RotationUtils.calcRotationFromVec3d(ctx.playerHead(),
                 VecUtils.getBlockPosCenter(positionToPlace),
                 ctx.playerRotations());
@@ -196,25 +199,54 @@ public class MovementPillar extends Movement {
 
         boolean blockIsThere = MovementHelper.canWalkOn(ctx, src) || ladder;
         if (ladder) {
-            BlockPos against = vine ? getAgainst(new CalculationContext(baritone), src) : src.relative(fromDown.getValue(LadderBlock.FACING).getOpposite());
-            if (against == null) {
-                logDirect("Unable to climb vines. Consider disabling allowVines.");
-                return state.setStatus(MovementStatus.UNREACHABLE);
+            // "against" block resolution depends on climbable type:
+            //   vanilla ladder  → block the ladder is attached to (via LadderBlock.FACING)
+            //   vanilla vine    → any adjacent normal cube (scanned by getAgainst)
+            //   other climbable → free-standing (scaffolding, twisting/weeping/cave vines,
+            //                     modded ropes); no lateral support block required.
+            BlockPos against;
+            if (vanillaLadder) {
+                against = src.relative(fromDown.getValue(LadderBlock.FACING).getOpposite());
+            } else if (vine) {
+                against = getAgainst(new CalculationContext(baritone), src);
+                if (against == null) {
+                    logDirect("Unable to climb vines. Consider disabling allowVines.");
+                    return state.setStatus(MovementStatus.UNREACHABLE);
+                }
+            } else {
+                against = null; // free-standing climbable
             }
 
-            if (ctx.playerFeet().equals(against.above()) || ctx.playerFeet().equals(dest)) {
+            if (against != null) {
+                if (ctx.playerFeet().equals(against.above()) || ctx.playerFeet().equals(dest)) {
+                    return state.setStatus(MovementStatus.SUCCESS);
+                }
+                if (MovementHelper.isBottomSlab(BlockStateInterface.get(ctx, src.below()))) {
+                    state.setInput(Input.JUMP, true);
+                }
+                MovementHelper.moveTowards(ctx, state, against);
+                return state;
+            }
+
+            // Free-standing climb (scaffolding, vines without vanilla support, modded ropes).
+            // Stay centered on the column, press JUMP to ascend — Minecraft's Entity climb logic
+            // (triggered by the #climbable tag) handles the vertical movement.
+            if (ctx.playerFeet().equals(dest)) {
                 return state.setStatus(MovementStatus.SUCCESS);
             }
-            if (MovementHelper.isBottomSlab(BlockStateInterface.get(ctx, src.below()))) {
-                state.setInput(Input.JUMP, true);
+            state.setTarget(new MovementState.MovementTarget(
+                    RotationUtils.calcRotationFromVec3d(ctx.playerHead(),
+                            VecUtils.getBlockPosCenter(src),
+                            ctx.playerRotations()),
+                    false));
+            state.setInput(Input.JUMP, true);
+            if ((pillarDebugCounter++ & 31) == 0) {
+                net.minecraft.world.level.block.state.BlockState feetState = BlockStateInterface.get(ctx, ctx.playerFeet());
+                org.slf4j.LoggerFactory.getLogger("Alice").info("[Alice][PillarDbg] src={} dest={} feet={} feetBlock={} onGround={} onClimbable={} y={}",
+                        src, dest, ctx.playerFeet(), feetState.getBlock(),
+                        ctx.player().onGround(), ctx.player().onClimbable(),
+                        ctx.player().position().y);
             }
-            /*
-            if (thePlayer.getPosition0().getX() != from.getX() || thePlayer.getPosition0().getZ() != from.getZ()) {
-                Baritone.moveTowardsBlock(from);
-            }
-             */
-
-            MovementHelper.moveTowards(ctx, state, against);
             return state;
         } else {
             // Get ready to place a throwaway block
@@ -272,8 +304,8 @@ public class MovementPillar extends Movement {
     @Override
     protected boolean prepared(MovementState state) {
         if (ctx.playerFeet().equals(src) || ctx.playerFeet().equals(src.below())) {
-            Block block = BlockStateInterface.getBlock(ctx, src.below());
-            if (block == Blocks.LADDER || block == Blocks.VINE) {
+            BlockState blockState = BlockStateInterface.get(ctx, src.below());
+            if (MovementHelper.isClimbable(blockState)) {
                 state.setInput(Input.SNEAK, true);
             }
         }

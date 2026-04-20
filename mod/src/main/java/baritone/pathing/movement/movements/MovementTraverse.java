@@ -40,9 +40,12 @@ import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.FenceGateBlock;
 import net.minecraft.world.level.block.LadderBlock;
 import net.minecraft.world.level.block.SlabBlock;
+import net.minecraft.world.level.block.TrapDoorBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.SlabType;
 import net.minecraft.world.phys.Vec3;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 import java.util.Set;
@@ -52,7 +55,9 @@ public class MovementTraverse extends Movement {
     /**
      * Did we have to place a bridge block or was it always there
      */
+    private static final Logger LOGGER = LoggerFactory.getLogger("Alice");
     private boolean wasTheBridgeBlockAlwaysThere = true;
+    private boolean interactLogged = false;
 
     public MovementTraverse(IBaritone baritone, BetterBlockPos from, BetterBlockPos to) {
         super(baritone, from, to, new BetterBlockPos[]{to.above(), to}, to.below());
@@ -118,13 +123,13 @@ public class MovementTraverse extends Movement {
                 }
                 return WC;
             }
-            if (srcDownBlock == Blocks.LADDER || srcDownBlock == Blocks.VINE) {
+            if (MovementHelper.isClimbable(srcDown)) {
                 hardness1 *= 5;
                 hardness2 *= 5;
             }
             return WC + hardness1 + hardness2;
         } else {//this is a bridge, so we need to place a block
-            if (srcDownBlock == Blocks.LADDER || srcDownBlock == Blocks.VINE) {
+            if (MovementHelper.isClimbable(srcDown)) {
                 return COST_INF;
             }
             if (MovementHelper.isReplaceable(destX, y - 1, destZ, destOn, context.bsi)) {
@@ -217,8 +222,9 @@ public class MovementTraverse extends Movement {
                     .setInput(Input.SPRINT, true);
         }
 
-        Block fd = BlockStateInterface.get(ctx, src.below()).getBlock();
-        boolean ladder = fd == Blocks.LADDER || fd == Blocks.VINE;
+        BlockState fdState = BlockStateInterface.get(ctx, src.below());
+        Block fd = fdState.getBlock();
+        boolean ladder = MovementHelper.isClimbable(fdState);
 
         //sneak may have been set to true in the PREPPING state while mining an adjacent block, but we still want it to be true if the player is about to go on magma
         state.setInput(Input.SNEAK, Baritone.settings().allowWalkOnMagmaBlocks.value && MovementHelper.steppingOnBlocks(ctx).stream().anyMatch(block -> ctx.world().getBlockState(block).is(Blocks.MAGMA_BLOCK)));
@@ -226,10 +232,41 @@ public class MovementTraverse extends Movement {
         if (pb0.getBlock() instanceof DoorBlock || pb1.getBlock() instanceof DoorBlock) {
             boolean notPassable = pb0.getBlock() instanceof DoorBlock && !MovementHelper.isDoorPassable(ctx, src, dest) || pb1.getBlock() instanceof DoorBlock && !MovementHelper.isDoorPassable(ctx, dest, src);
             boolean canOpen = !(Blocks.IRON_DOOR.equals(pb0.getBlock()) || Blocks.IRON_DOOR.equals(pb1.getBlock()));
+            // Guard contra loop open/close: se a porta ja esta OPEN fisicamente, nao re-clicar
+            // (isDoorPassable tem short-circuit pra playerPos==doorPos que pode disparar re-click
+            // enquanto Alice ainda atravessa).
+            boolean doorAlreadyOpen = (pb0.getBlock() instanceof DoorBlock && pb0.getValue(DoorBlock.OPEN))
+                    || (pb1.getBlock() instanceof DoorBlock && pb1.getValue(DoorBlock.OPEN));
 
-            if (notPassable && canOpen) {
+            if (!interactLogged) {
+                interactLogged = true;
+                LOGGER.info("[Alice][Interact] door at {} notPassable={} canOpen={} alreadyOpen={} (src={} dest={})",
+                        positionsToBreak[0], notPassable, canOpen, doorAlreadyOpen, src, dest);
+            }
+
+            if (notPassable && canOpen && !doorAlreadyOpen) {
                 return state.setTarget(new MovementState.MovementTarget(RotationUtils.calcRotationFromVec3d(ctx.playerHead(), VecUtils.calculateBlockCenter(ctx.world(), positionsToBreak[0]), ctx.playerRotations()), true))
                         .setInput(Input.CLICK_RIGHT, true);
+            }
+        }
+
+        // Trapdoor (alcapao): se fechado e na direcao horizontal da travessia, abrir via right-click.
+        // Vanilla Baritone upstream nao porta isso; adicionado para Alice atravessar castelos/bases.
+        if (pb0.getBlock() instanceof TrapDoorBlock || pb1.getBlock() instanceof TrapDoorBlock) {
+            BlockPos trapPos = pb1.getBlock() instanceof TrapDoorBlock ? positionsToBreak[1] : positionsToBreak[0];
+            BlockState trapState = pb1.getBlock() instanceof TrapDoorBlock ? pb1 : pb0;
+            boolean trapOpen = trapState.getValue(TrapDoorBlock.OPEN);
+            boolean isIron = trapState.getBlock() == Blocks.IRON_TRAPDOOR;
+            if (!interactLogged) {
+                interactLogged = true;
+                LOGGER.info("[Alice][Interact] trapdoor at {} open={} iron={} (src={} dest={})",
+                        trapPos, trapOpen, isIron, src, dest);
+            }
+            if (!trapOpen && !isIron) {
+                Optional<Rotation> rotation = RotationUtils.reachable(ctx, trapPos);
+                if (rotation.isPresent()) {
+                    return state.setTarget(new MovementState.MovementTarget(rotation.get(), true)).setInput(Input.CLICK_RIGHT, true);
+                }
             }
         }
 
@@ -237,6 +274,10 @@ public class MovementTraverse extends Movement {
             BlockPos blocked = !MovementHelper.isGatePassable(ctx, positionsToBreak[0], src.above()) ? positionsToBreak[0]
                     : !MovementHelper.isGatePassable(ctx, positionsToBreak[1], src) ? positionsToBreak[1]
                     : null;
+            if (!interactLogged) {
+                interactLogged = true;
+                LOGGER.info("[Alice][Interact] fence_gate blocked={} (src={} dest={})", blocked, src, dest);
+            }
             if (blocked != null) {
                 Optional<Rotation> rotation = RotationUtils.reachable(ctx, blocked);
                 if (rotation.isPresent()) {
@@ -263,9 +304,9 @@ public class MovementTraverse extends Movement {
             if (Baritone.settings().overshootTraverse.value && (feet.equals(dest.offset(getDirection())) || feet.equals(dest.offset(getDirection()).offset(getDirection())))) {
                 return state.setStatus(MovementStatus.SUCCESS);
             }
-            Block low = BlockStateInterface.get(ctx, src).getBlock();
-            Block high = BlockStateInterface.get(ctx, src.above()).getBlock();
-            if (ctx.player().position().y > src.y + 0.1D && !ctx.player().onGround() && (low == Blocks.VINE || low == Blocks.LADDER || high == Blocks.VINE || high == Blocks.LADDER)) {
+            BlockState low = BlockStateInterface.get(ctx, src);
+            BlockState high = BlockStateInterface.get(ctx, src.above());
+            if (ctx.player().position().y > src.y + 0.1D && !ctx.player().onGround() && (MovementHelper.isClimbable(low) || MovementHelper.isClimbable(high))) {
                 // hitting W could cause us to climb the ladder instead of going forward
                 // wait until we're on the ground
                 return state;
@@ -279,12 +320,18 @@ public class MovementTraverse extends Movement {
 
             BlockState destDown = BlockStateInterface.get(ctx, dest.below());
             BlockPos against = positionsToBreak[0];
-            if (feet.getY() != dest.getY() && ladder && (destDown.getBlock() == Blocks.VINE || destDown.getBlock() == Blocks.LADDER)) {
-                against = destDown.getBlock() == Blocks.VINE ? MovementPillar.getAgainst(new CalculationContext(baritone), dest.below()) : dest.relative(destDown.getValue(LadderBlock.FACING).getOpposite());
-                if (against == null) {
-                    logDirect("Unable to climb vines. Consider disabling allowVines.");
-                    return state.setStatus(MovementStatus.UNREACHABLE);
+            if (feet.getY() != dest.getY() && ladder && MovementHelper.isClimbable(destDown)) {
+                if (destDown.getBlock() == Blocks.VINE) {
+                    against = MovementPillar.getAgainst(new CalculationContext(baritone), dest.below());
+                    if (against == null) {
+                        logDirect("Unable to climb vines. Consider disabling allowVines.");
+                        return state.setStatus(MovementStatus.UNREACHABLE);
+                    }
+                } else if (destDown.getBlock() == Blocks.LADDER) {
+                    against = dest.relative(destDown.getValue(LadderBlock.FACING).getOpposite());
                 }
+                // Free-standing climbables (scaffolding, twisting/weeping vines, modded ropes) have no
+                // "against" block — fall through and keep the default positionsToBreak[0] target.
             }
             MovementHelper.moveTowards(ctx, state, against);
             return state;
@@ -372,8 +419,8 @@ public class MovementTraverse extends Movement {
     @Override
     protected boolean prepared(MovementState state) {
         if (ctx.playerFeet().equals(src) || ctx.playerFeet().equals(src.below())) {
-            Block block = BlockStateInterface.getBlock(ctx, src.below());
-            if (block == Blocks.LADDER || block == Blocks.VINE) {
+            BlockState blockState = BlockStateInterface.get(ctx, src.below());
+            if (MovementHelper.isClimbable(blockState)) {
                 state.setInput(Input.SNEAK, true);
             }
         }

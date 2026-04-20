@@ -44,8 +44,13 @@ def rcon():
 
 @pytest.fixture
 def log_tail() -> LogTail:
-    """Per-test log tail — resets baseline at test start so asserts only see NEW lines."""
-    assert LATEST_LOG.exists(), f"latest.log not found at {LATEST_LOG} — is server running?"
+    """Per-test log tail — resets baseline at test start so asserts only see NEW lines.
+
+    Only available when targeting the LOCAL test-server. Tests targeting a remote
+    server (Larry) should skip this fixture and assert via RCON only.
+    """
+    if not LATEST_LOG.exists():
+        pytest.skip(f"latest.log not found at {LATEST_LOG} — remote server target or local server not running")
     return LogTail(LATEST_LOG)
 
 

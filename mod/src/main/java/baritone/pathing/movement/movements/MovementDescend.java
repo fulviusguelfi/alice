@@ -93,8 +93,9 @@ public class MovementDescend extends Movement {
             return;
         }
 
-        Block fromDown = context.get(x, y - 1, z).getBlock();
-        if (fromDown == Blocks.LADDER || fromDown == Blocks.VINE) {
+        BlockState fromDownState = context.get(x, y - 1, z);
+        Block fromDown = fromDownState.getBlock();
+        if (MovementHelper.isClimbable(fromDownState)) {
             return;
         }
 
@@ -114,7 +115,7 @@ public class MovementDescend extends Movement {
             return;
         }
 
-        if (destDown.getBlock() == Blocks.LADDER || destDown.getBlock() == Blocks.VINE) {
+        if (MovementHelper.isClimbable(destDown)) {
             return;
         }
         if (MovementHelper.canUseFrostWalker(context, destDown)) { // no need to check assumeWalkOnWater
@@ -186,7 +187,7 @@ public class MovementDescend extends Movement {
                 res.cost = tentativeCost;
                 return false;
             }
-            if (unprotectedFallHeight <= 11 && (ontoBlock.getBlock() == Blocks.VINE || ontoBlock.getBlock() == Blocks.LADDER)) {
+            if (unprotectedFallHeight <= 11 && MovementHelper.isClimbable(ontoBlock)) {
                 // if fall height is greater than or equal to 11, we don't actually grab on to vines or ladders. the more you know
                 // this effectively "resets" our falling speed
                 costSoFar += FALL_N_BLOCKS_COST[unprotectedFallHeight - 1];// we fall until the top of this block (not including this block)

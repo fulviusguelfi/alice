@@ -58,6 +58,7 @@ public class AliceEntity {
     private int tickIndex;
     private int tickCount;
     private int totalTickCount;
+    private volatile double lastP95Ms = 0.0;
 
     // Follow/path/stuck diagnostics
     private static final int FOLLOW_LOG_INTERVAL = 40; // ~2 seconds
@@ -187,6 +188,8 @@ public class AliceEntity {
         double p95Ms = snapshot[(int) (snapshot.length * 0.95)] / 1_000_000.0;
         double p99Ms = snapshot[(int) (snapshot.length * 0.99)] / 1_000_000.0;
         double maxMs = snapshot[snapshot.length - 1] / 1_000_000.0;
+
+        lastP95Ms = p95Ms;
 
         LOGGER.info("[Alice] baritone tick avg={}ms p95={}ms p99={}ms max={}ms (window={})",
                 String.format("%.2f", avgMs),
@@ -408,6 +411,18 @@ public class AliceEntity {
 
     private static void sendTo(ServerPlayer p, Packet<?> packet) {
         if (p.connection != null) p.connection.send(packet);
+    }
+
+    /**
+     * Returns an inline perf snapshot for /alicecmd perfstats RCON command.
+     */
+    public String getPerfStats() {
+        Runtime rt = Runtime.getRuntime();
+        long usedMB = (rt.totalMemory() - rt.freeMemory()) / (1024 * 1024);
+        long maxMB = rt.maxMemory() / (1024 * 1024);
+        double heapPct = maxMB == 0 ? 0 : usedMB * 100.0 / maxMB;
+        return String.format("[Alice][Perf] heap=%d/%d MB (%.1f%%) threads=%d tickP95=%.2fms",
+                usedMB, maxMB, heapPct, Thread.activeCount(), lastP95Ms);
     }
 
     /**

@@ -185,6 +185,92 @@ public class AliceChatHandler {
                 });
     }
 
+    /**
+     * Simulates a chat message from a named player via RCON (no real ServerPlayer required).
+     * Used by /alicecmd chat <playerName> <rawMessage>.
+     * Replies are broadcast to all online players.
+     */
+    public void handleMessage(String playerName, String rawMessage) {
+        Matcher prefixMatch = ALICE_PREFIX.matcher(rawMessage.trim());
+        if (!prefixMatch.matches()) return;
+
+        String command = prefixMatch.group(1).trim();
+        LOGGER.info("[Alice] RCON chat from {}: {}", playerName, command);
+        AliceMod.JOURNAL.record(BehaviorJournal.Type.CHAT,
+                playerName + " disse (rcon): " + command, "");
+
+        if (!aliceEntity.isAttached()) {
+            broadcastAll("Ainda nao estou pronta.");
+            return;
+        }
+
+        String lower = command.toLowerCase();
+
+        if (lower.equals("stay") || lower.equals("fica") || lower.equals("fica ai")
+                || lower.equals("fica aí") || lower.equals("para") || lower.equals("pare")) {
+            var baritone = aliceEntity.getBaritone();
+            baritone.getPathingBehavior().cancelEverything();
+            baritone.getFollowProcess().cancel();
+            baritone.getCustomGoalProcess().setGoal(null);
+            var pos = aliceEntity.getFakePlayer().blockPosition();
+            broadcastAll("Parei em " + pos.getX() + ", " + pos.getY() + ", " + pos.getZ() + ".");
+            LOGGER.info("[Alice] stay command via RCON");
+            AliceMod.JOURNAL.record(BehaviorJournal.Type.GOAL, "parada em " + pos,
+                    playerName + " rcon");
+            return;
+        }
+
+        Matcher gotoMatch = GOTO_PATTERN.matcher(command);
+        if (gotoMatch.find()) {
+            int x = Integer.parseInt(gotoMatch.group(1));
+            int y = Integer.parseInt(gotoMatch.group(2));
+            int z = Integer.parseInt(gotoMatch.group(3));
+            aliceEntity.getBaritone().getCustomGoalProcess().setGoalAndPath(new GoalBlock(x, y, z));
+            broadcastAll("Indo para " + x + ", " + y + ", " + z + ".");
+            AliceMod.JOURNAL.record(BehaviorJournal.Type.GOAL,
+                    "ir para (" + x + "," + y + "," + z + ")", playerName + " rcon");
+            return;
+        }
+
+        if (lower.equals("status") || lower.equals("como voce esta")
+                || lower.equals("como você está") || lower.equals("como vai")) {
+            var fp = aliceEntity.getFakePlayer();
+            broadcastAll(String.format("HP: %.0f/%.0f | Pos: %d, %d, %d | %s",
+                    fp.getHealth(), fp.getMaxHealth(),
+                    (int) fp.getX(), (int) fp.getY(), (int) fp.getZ(),
+                    aliceEntity.getBaritone().getPathingBehavior().isPathing() ? "Navegando" : "Parada"));
+            return;
+        }
+
+        if (llmProvider != null) {
+            broadcastAll("Pensando...");
+            llmProvider.chatAsync(playerName, command)
+                    .thenAccept(response -> {
+                        AliceMod.JOURNAL.record(BehaviorJournal.Type.LLM,
+                                "respondi: " + truncate(response, 60),
+                                "pergunta de " + playerName);
+                        var server = aliceEntity.getFakePlayer().getServer();
+                        if (server != null) {
+                            server.execute(() -> broadcastAll(response));
+                        }
+                    })
+                    .exceptionally(ex -> {
+                        LOGGER.error("[Alice] LLM error (rcon)", ex);
+                        return null;
+                    });
+        } else {
+            broadcastAll("LLM nao conectado.");
+        }
+    }
+
+    private void broadcastAll(String text) {
+        if (!aliceEntity.isAttached()) return;
+        var server = aliceEntity.getFakePlayer().getServer();
+        if (server == null) return;
+        server.getPlayerList().broadcastSystemMessage(
+                Component.literal("[Alice] " + text), false);
+    }
+
     private static String truncate(String s, int max) {
         if (s == null) return "";
         return s.length() <= max ? s : s.substring(0, max) + "...";

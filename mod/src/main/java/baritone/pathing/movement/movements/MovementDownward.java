@@ -21,12 +21,13 @@ import baritone.api.IBaritone;
 import baritone.api.pathing.movement.MovementStatus;
 import baritone.api.utils.BetterBlockPos;
 import baritone.pathing.movement.CalculationContext;
+import baritone.api.utils.input.Input;
 import baritone.pathing.movement.Movement;
 import baritone.pathing.movement.MovementHelper;
 import baritone.pathing.movement.MovementState;
+import baritone.utils.BlockStateInterface;
 import com.google.common.collect.ImmutableSet;
 import java.util.Set;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -62,8 +63,7 @@ public class MovementDownward extends Movement {
             return COST_INF;
         }
         BlockState down = context.get(x, y - 1, z);
-        Block downBlock = down.getBlock();
-        if (downBlock == Blocks.LADDER || downBlock == Blocks.VINE) {
+        if (MovementHelper.isClimbable(down)) {
             return LADDER_DOWN_ONE_COST;
         } else {
             // we're standing on it, while it might be block falling, it'll be air by the time we get here in the movement
@@ -91,6 +91,21 @@ public class MovementDownward extends Movement {
             return state;
         }
         MovementHelper.moveTowards(ctx, state, positionsToBreak[0]);
+        // Scaffolding: SNEAK always, both to sink through the solid top face AND to step off the
+        // edge when entering from above.
+        // Other free-standing climbables (rope, twisting_vines): SNEAK only when stepping OFF (feet
+        // not yet climbable) — once inside, SNEAK halts descent (ladder-like "hold position").
+        // Vanilla ladder/vine: never SNEAK (MOVE_FORWARD against wall handles descent).
+        BlockState feet = BlockStateInterface.get(ctx, ctx.playerFeet());
+        BlockState destState = BlockStateInterface.get(ctx, positionsToBreak[0]);
+        if (MovementHelper.isClimbable(destState)
+                && destState.getBlock() != Blocks.LADDER
+                && destState.getBlock() != Blocks.VINE) {
+            boolean isScaffolding = destState.getBlock() == Blocks.SCAFFOLDING;
+            if (isScaffolding || !MovementHelper.isClimbable(feet)) {
+                state.setInput(Input.SNEAK, true);
+            }
+        }
         return state;
     }
 }
