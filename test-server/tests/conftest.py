@@ -15,6 +15,7 @@ clean up their world state (tp, kill, setblock) themselves.
 from __future__ import annotations
 
 import os
+import re
 import time
 from pathlib import Path
 
@@ -34,12 +35,19 @@ LATEST_LOG = TEST_SERVER_ROOT / "logs" / "latest.log"
 
 @pytest.fixture(scope="session")
 def rcon():
-    """Session-scoped RCON client. Fails fast if server isn't reachable."""
-    with rcon_session(RCON_HOST, RCON_PORT, RCON_PASSWORD) as client:
-        # Sanity: server answers a cheap query
+    """Session-scoped RCON client. Fails fast if server isn't reachable.
+
+    Timeout is set to 30s (not 10s) because large fill/setblock commands on a
+    heavily-modded server can take longer than the default socket timeout.
+    """
+    client = RconClient(RCON_HOST, RCON_PORT, RCON_PASSWORD, timeout=30.0)
+    client.connect()
+    try:
         resp = client.command("seed")
         assert resp, "RCON connected but 'seed' returned empty — server broken?"
         yield client
+    finally:
+        client.close()
 
 
 @pytest.fixture
@@ -66,13 +74,81 @@ def clean_world(rcon: RconClient):
     # teardown: nothing — each test should clean its own structures
 
 
+@pytest.fixture
+def peaceful(rcon: RconClient):
+    """Ensure peaceful difficulty for the duration of the test."""
+    rcon.command("difficulty peaceful")
+    yield
+    rcon.command("difficulty peaceful")
+
+
+@pytest.fixture
+def easy(rcon: RconClient):
+    """Switch to easy difficulty; restore peaceful after."""
+    rcon.command("difficulty easy")
+    yield
+    rcon.command("difficulty peaceful")
+
+
+# ---------------------------------------------------------------------------
+# Combat arena fixture — coordinates at (-5800, 69, -5800)
+# ---------------------------------------------------------------------------
+
+COMBAT_X, COMBAT_Y, COMBAT_Z = -5800, 69, -5800
+COMBAT_W = 15
+
+
+def _alice_tp(rcon: RconClient, x: float, y: float, z: float) -> None:
+    rcon.command(f"alicecmd tp {x} {y} {z}")
+
+
+def _alice_stay(rcon: RconClient) -> None:
+    rcon.command("alicecmd stay")
+
+
+def _alice_pos(rcon: RconClient):
+    resp = rcon.command("alicecmd pos")
+    m = re.search(r"pos\s+(-?[\d.]+)\s+(-?[\d.]+)\s+(-?[\d.]+)", resp)
+    if not m:
+        return None
+    return float(m.group(1)), float(m.group(2)), float(m.group(3))
+
+
+@pytest.fixture
+def combat_arena(rcon: RconClient):
+    """Flat arena at (-5800, 69, -5800). Clears mobs, builds floor, parks Alice."""
+    rcon.command("difficulty peaceful")
+    rcon.command("kill @e[type=zombie]")
+    rcon.command("kill @e[type=skeleton]")
+    x1, x2 = COMBAT_X - COMBAT_W, COMBAT_X + COMBAT_W
+    z1, z2 = COMBAT_Z - COMBAT_W, COMBAT_Z + COMBAT_W
+    rcon.command(f"forceload add {x1} {z1} {x2} {z2}")
+    rcon.command(f"fill {x1} {COMBAT_Y - 2} {z1} {x2} {COMBAT_Y - 1} {z2} minecraft:stone")
+    rcon.command(f"fill {x1} {COMBAT_Y} {z1} {x2} {COMBAT_Y + 4} {z2} minecraft:air")
+    _alice_stay(rcon)
+    _alice_tp(rcon, COMBAT_X + 0.5, COMBAT_Y, COMBAT_Z + 0.5)
+    time.sleep(0.8)
+    yield
+    _alice_stay(rcon)
+    rcon.command("kill @e[type=zombie]")
+    rcon.command("kill @e[type=skeleton]")
+    rcon.command(f"forceload remove {x1} {z1} {x2} {z2}")
+    rcon.command("difficulty peaceful")
+
+
 def wait_alice_ready(rcon: RconClient, timeout: float = 10.0) -> bool:
-    """Block until Alice responds to a 'status' probe via a chat (no-op for now)."""
-    # Simple heuristic: Alice is tracked in player list
+    """Block until Alice responds to alicecmd status with an HP/pos line.
+
+    FakePlayer is NOT tracked in /list (no connection object), so we probe
+    alicecmd status instead, which returns '[Alice] hp=...' when attached.
+    """
     deadline = time.monotonic() + timeout
     while time.monotonic() < deadline:
-        resp = rcon.command("list")
-        if "Alice" in resp:
-            return True
+        try:
+            resp = rcon.command("alicecmd status")
+            if "[Alice]" in resp and "hp=" in resp:
+                return True
+        except Exception:
+            pass
         time.sleep(0.3)
     return False

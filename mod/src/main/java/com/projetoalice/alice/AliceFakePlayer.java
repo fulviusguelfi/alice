@@ -32,4 +32,15 @@ public class AliceFakePlayer extends FakePlayer {
         // This processes movement (xxa/zza), gravity, collision detection, etc.
         this.doTick();
     }
+
+    /**
+     * Allow auto-stepping up full 1-block heights.
+     * Default is 0.6F (steps up 0.6 blocks). Baritone uses assumeStep=true
+     * which skips the JUMP input for 1-block ascends, relying on auto-step.
+     * Without this override, Alice walks into 1-block walls instead of stepping.
+     */
+    @Override
+    public float maxUpStep() {
+        return 1.0F;
+    }
 }

@@ -4,8 +4,10 @@ import baritone.api.pathing.goals.GoalBlock;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
+import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
+import java.util.Locale;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
@@ -60,6 +62,9 @@ public final class AliceCommands {
                         .then(Commands.argument("player", StringArgumentType.word())
                                 .then(Commands.argument("message", StringArgumentType.greedyString())
                                         .executes(AliceCommands::cmdChat))))
+                .then(Commands.literal("sethealth")
+                        .then(Commands.argument("value", FloatArgumentType.floatArg(0.0f, 20.0f))
+                                .executes(AliceCommands::cmdSetHealth)))
                 .then(Commands.literal("perfstats").executes(AliceCommands::cmdPerfStats))
         );
         LOGGER.info("[Alice] /alicecmd registered");
@@ -133,7 +138,7 @@ public final class AliceCommands {
             return 0;
         }
         var fp = aliceEntity.getFakePlayer();
-        String msg = String.format("[Alice] pos %.2f %.2f %.2f", fp.getX(), fp.getY(), fp.getZ());
+        String msg = String.format(Locale.US, "[Alice] pos %.2f %.2f %.2f", fp.getX(), fp.getY(), fp.getZ());
         ctx.getSource().sendSuccess(() -> Component.literal(msg), false);
         return Command.SINGLE_SUCCESS;
     }
@@ -149,6 +154,19 @@ public final class AliceCommands {
         ctx.getSource().sendSuccess(() ->
                 Component.literal("[Alice] Chat simulated from " + player), false);
         LOGGER.info("[Alice] RCON chat simulation from {} message={}", player, message);
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int cmdSetHealth(com.mojang.brigadier.context.CommandContext<CommandSourceStack> ctx) {
+        if (aliceEntity == null || !aliceEntity.isAttached()) {
+            ctx.getSource().sendFailure(Component.literal("Alice not attached"));
+            return 0;
+        }
+        float hp = FloatArgumentType.getFloat(ctx, "value");
+        aliceEntity.getFakePlayer().setHealth(hp);
+        LOGGER.info("[Alice] health set to {} via RCON (ratio={})", hp, hp / aliceEntity.getFakePlayer().getMaxHealth());
+        ctx.getSource().sendSuccess(() -> Component.literal(
+                "[Alice] health=" + hp + "/" + aliceEntity.getFakePlayer().getMaxHealth()), false);
         return Command.SINGLE_SUCCESS;
     }
 

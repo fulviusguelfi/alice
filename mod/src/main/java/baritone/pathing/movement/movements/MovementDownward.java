@@ -59,7 +59,8 @@ public class MovementDownward extends Movement {
         if (!context.allowDownward) {
             return COST_INF;
         }
-        if (!MovementHelper.canWalkOn(context, x, y - 2, z)) {
+        if (!MovementHelper.canWalkOn(context, x, y - 2, z)
+                && !MovementHelper.isClimbable(context.get(x, y - 2, z))) {
             return COST_INF;
         }
         BlockState down = context.get(x, y - 1, z);

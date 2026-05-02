@@ -100,7 +100,11 @@ def _discover_climbables() -> list[str]:
 
 
 # Module-level cache (collected once when pytest imports this module)
-AVAILABLE_CLIMBABLES = _discover_climbables()
+try:
+    AVAILABLE_CLIMBABLES = _discover_climbables()
+except Exception:
+    # Server offline during collection — tests will be skipped via empty list
+    AVAILABLE_CLIMBABLES = []
 
 
 # ---------------------------------------------------------------------------
@@ -361,12 +365,26 @@ def test_alice_descends_ceiling_vines(rcon: RconClient, arena, block_id: str):
     """Alice descends a ceiling-hanging `block_id` column.
 
     These blocks hang from a ceiling so there's no way to climb UP them from below.
-    For Alice to descend, she must start adjacent at the top (e.g., tp'd to the
-    ceiling block's lateral neighbour) and goto the floor column.
+    Alice starts at ceiling level lateral to the vine column and must descend to ground.
+
+    MovementDownward fix (ceiling-hang cost): cost() now accepts isClimbable(y-2) as a
+    valid descent support, so vine columns are valid descent paths.
     """
-    pytest.xfail(
-        f"Ceiling-hanging {block_id} descent not ported; MovementPillar descent only "
-        "recognizes Blocks.LADDER."
+    tx, ty, tz = BASE_X, BASE_Y, BASE_Z
+    placement = _place_tower(rcon, block_id, tx, ty, tz, TOWER_H)
+
+    # Entry: Alice at ceiling height (ty + TOWER_H), one block lateral to the vine column.
+    # This lets Baritone plan a descent through the vine column.
+    alice_tp(rcon, tx + 1 + 0.5, ty + TOWER_H, tz + 0.5)
+    time.sleep(1.0)
+
+    # Goal: ground level at column base
+    alice_goto(rcon, tx, ty, tz)
+
+    reached, last = wait_y_reaches(rcon, target_y=ty, direction="down")
+    assert reached, (
+        f"[{block_id}] Alice did not descend to y<={ty + 0.5} within {CLIMB_TIMEOUT}s. "
+        f"last_pos={last} geom={placement}"
     )
 
 

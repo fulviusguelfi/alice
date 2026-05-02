@@ -59,6 +59,19 @@ public class Config {
             .comment("Whether Alice automatically attacks nearby hostile mobs")
             .define("behavior.autoCombat", true);
 
+    // --- Inventory ---
+    private static final ForgeConfigSpec.IntValue PICKUP_RADIUS = BUILDER
+            .comment("Radius in blocks for Alice to detect and pick up dropped items")
+            .defineInRange("inventory.pickupRadius", 4, 1, 16);
+
+    private static final ForgeConfigSpec.IntValue CONTAINER_SCAN_RADIUS = BUILDER
+            .comment("Radius in blocks to scan for containers")
+            .defineInRange("inventory.containerScanRadius", 8, 2, 32);
+
+    private static final ForgeConfigSpec.BooleanValue AUTO_EQUIP = BUILDER
+            .comment("Whether Alice automatically equips better armor and weapons")
+            .define("inventory.autoEquip", true);
+
     // --- Debug ---
     private static final ForgeConfigSpec.BooleanValue LOG_RULES = BUILDER
             .comment("Log rule activations")
@@ -92,6 +105,10 @@ public class Config {
     public static int followDistance;
     public static boolean autoCombat;
 
+    public static int pickupRadius;
+    public static int containerScanRadius;
+    public static boolean autoEquip;
+
     public static boolean logRules;
     public static boolean logLlm;
     public static boolean logFollow;
@@ -111,6 +128,10 @@ public class Config {
         criticalHealthThreshold = CRITICAL_HEALTH_THRESHOLD.get();
         followDistance = FOLLOW_DISTANCE.get();
         autoCombat = AUTO_COMBAT.get();
+
+        pickupRadius = PICKUP_RADIUS.get();
+        containerScanRadius = CONTAINER_SCAN_RADIUS.get();
+        autoEquip = AUTO_EQUIP.get();
 
         logRules = LOG_RULES.get();
         logLlm = LOG_LLM.get();

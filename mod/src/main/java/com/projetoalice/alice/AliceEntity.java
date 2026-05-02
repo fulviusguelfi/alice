@@ -110,6 +110,12 @@ public class AliceEntity {
         // instead of the player's actual Y position.
         Baritone.settings().simplifyUnloadedYCoord.value = false;
 
+        // Server-side physics: FakePlayer.maxUpStep = 1.0F handles 1-block step-ups
+        // automatically via Entity.move() collision resolution. assumeStep=true tells
+        // Baritone to rely on server auto-step instead of sending explicit JUMP inputs,
+        // which require client-side physics not available server-side.
+        Baritone.settings().assumeStep.value = true;
+
         Baritone.settings().followRadius.value = Config.followDistance;
         LOGGER.info("[Alice] Baritone followRadius = {}", Config.followDistance);
 
@@ -421,7 +427,7 @@ public class AliceEntity {
         long usedMB = (rt.totalMemory() - rt.freeMemory()) / (1024 * 1024);
         long maxMB = rt.maxMemory() / (1024 * 1024);
         double heapPct = maxMB == 0 ? 0 : usedMB * 100.0 / maxMB;
-        return String.format("[Alice][Perf] heap=%d/%d MB (%.1f%%) threads=%d tickP95=%.2fms",
+        return String.format(java.util.Locale.US, "[Alice][Perf] heap=%d/%d MB (%.1f%%) threads=%d tickP95=%.2fms",
                 usedMB, maxMB, heapPct, Thread.activeCount(), lastP95Ms);
     }
 

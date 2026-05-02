@@ -68,7 +68,12 @@ def test_journal_chat_command(rcon: RconClient, log_tail: LogTail, clean_world):
         pytest.skip("No real player online — chat tests need a human sender")
 
 
-@pytest.mark.xfail(reason="MovementSwim/Dive not ported from upstream Baritone — see Baritone roadmap")
+@pytest.mark.xfail(reason=(
+    "T-09: MovementSwim não portado. "
+    "Estimativa: ~80 linhas (nova classe + registro em MovementType). "
+    "Ver docs/spikes/pathfinding-port/spike-f-interact-gaps.md §Agua. "
+    "Data-alvo: início Fase 2."
+))
 def test_alice_dives_into_water(rcon: RconClient, log_tail: LogTail, clean_world):
     """Alice should descend into 2-block-deep water when goal is on the bottom.
     Currently FAILS: this port has no MovementSwim — she traverses horizontally only.

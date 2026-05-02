@@ -215,7 +215,6 @@ def test_alice_opens_fence_gate(rcon: RconClient, arena):
     assert open_after is True, f"Alice crossed but gate is not open (open={open_after})"
 
 
-@pytest.mark.xfail(reason="TrapDoor-as-horizontal-wall requires trapdoor oriented to block traversal — may need redstone preview")
 def test_alice_opens_horizontal_trapdoor(rcon: RconClient, arena):
     """Trapdoor blocking horizontal path (mounted on side). Alice should right-click to open.
 
@@ -239,3 +238,19 @@ def test_alice_opens_horizontal_trapdoor(rcon: RconClient, arena):
 
     reached, final = wait_reached(rcon, lambda p: p[0] >= trap_x + 1 and abs(p[2] - trap_z) < 3.0, timeout=45.0)
     assert reached, f"Alice did not cross trapdoor within 45s (last pos={final})"
+
+
+@pytest.mark.xfail(reason=(
+    "T-10: Redstone-aware pathfinding não portado. "
+    "Inclui: pressure plates, alavancas, portas de ferro via redstone. "
+    "Estimativa: 3-5 dias, risco alto. "
+    "Ver docs/spikes/pathfinding-port/spike-f-interact-gaps.md §Redstone. "
+    "Data-alvo: Fase 2 Iteração 2."
+))
+def test_alice_opens_iron_door_via_pressure_plate(rcon: RconClient, arena):
+    """T-10 documentary — Alice activates a pressure plate to open an iron door.
+
+    This is a backlog item (Fase 2 Iteration 2). The test is xfail as a DOD placeholder
+    and will be converted to a real test once redstone-aware pathfinding is ported.
+    """
+    pytest.xfail("T-10 not implemented")

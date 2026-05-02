@@ -6,10 +6,14 @@ import com.projetoalice.alice.rules.FleeOnCriticalHealthRule;
 import com.projetoalice.alice.rules.FleeOnLowHealthRule;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
@@ -20,6 +24,9 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegistryObject;
 import org.slf4j.Logger;
 
 @Mod(AliceMod.MODID)
@@ -30,20 +37,40 @@ public class AliceMod {
 
     public static final BehaviorJournal JOURNAL = new BehaviorJournal();
 
+    // Item registry
+    public static final DeferredRegister<Item> ITEMS =
+            DeferredRegister.create(ForgeRegistries.ITEMS, MODID);
+
+    public static final RegistryObject<Item> ALICE_SPAWN_EGG =
+            ITEMS.register("alice_spawn_egg", () -> new AliceSpawnEgg(new Item.Properties().stacksTo(1)));
+
     private final AliceEntity aliceEntity = new AliceEntity();
     private final RuleEngine ruleEngine = new RuleEngine();
     private final AliceChatHandler chatHandler = new AliceChatHandler(aliceEntity);
     private ServerLevel overworld;
     private boolean teleportedToPlayer;
 
+    // Death/respawn state
+    private long scheduledRespawnTick = -1;
+    private static final long RESPAWN_DELAY_TICKS = 60L; // 3 seconds
+
     public AliceMod(FMLJavaModLoadingContext context) {
         IEventBus modEventBus = context.getModEventBus();
         modEventBus.addListener(this::commonSetup);
+        modEventBus.addListener(this::addCreative);
+        ITEMS.register(modEventBus);
         MinecraftForge.EVENT_BUS.register(this);
         MinecraftForge.EVENT_BUS.register(new AliceCommands());
         AliceCommands.bindEntity(aliceEntity);
         AliceCommands.bindChatHandler(chatHandler);
+        AliceSpawnEgg.bindEntity(aliceEntity);
         context.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+    }
+
+    private void addCreative(BuildCreativeModeTabContentsEvent event) {
+        if (event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES) {
+            event.accept(ALICE_SPAWN_EGG);
+        }
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {
@@ -108,12 +135,42 @@ public class AliceMod {
 
     @SubscribeEvent
     public void onServerTick(TickEvent.ServerTickEvent event) {
-        if (event.phase == TickEvent.Phase.END && aliceEntity.isAttached() && overworld != null) {
+        if (event.phase != TickEvent.Phase.END || overworld == null) return;
+
+        // Handle scheduled respawn after Alice's death
+        if (scheduledRespawnTick > 0 && !aliceEntity.isAttached()) {
+            long currentTick = overworld.getGameTime();
+            if (currentTick >= scheduledRespawnTick) {
+                LOGGER.info("[Alice] Respawning Alice after death (scheduled tick reached)");
+                scheduledRespawnTick = -1;
+                aliceEntity.attach(overworld);
+                JOURNAL.record(BehaviorJournal.Type.SYSTEM, "renasci", "respawn após morte");
+            }
+            return; // skip normal tick while dead
+        }
+
+        if (aliceEntity.isAttached()) {
             JOURNAL.incrementTick();
             // Rules run first (safety > combat > utility)
             ruleEngine.tick(aliceEntity, overworld);
             // Then Baritone tick
             aliceEntity.tick();
+        }
+    }
+
+    @SubscribeEvent
+    public void onLivingDeath(LivingDeathEvent event) {
+        if (!aliceEntity.isAttached()) return;
+        var fp = aliceEntity.getFakePlayer();
+        if (fp == null || !event.getEntity().getUUID().equals(fp.getUUID())) return;
+
+        LOGGER.info("[Alice] Alice FakePlayer died — scheduling respawn in {} ticks", RESPAWN_DELAY_TICKS);
+        JOURNAL.record(BehaviorJournal.Type.SYSTEM, "morri", "evento LivingDeath detectado");
+
+        // Detach cleanly; respawn will be triggered on next server tick after delay
+        aliceEntity.detach();
+        if (overworld != null) {
+            scheduledRespawnTick = overworld.getGameTime() + RESPAWN_DELAY_TICKS;
         }
     }
 
